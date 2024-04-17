@@ -213,6 +213,12 @@ class OceanRad():
         print(f'The datacube is {size_datacube} GB')
         print(f'The datacube has {size_spectra} GB of actual data')
         
+        self.spectrum_list = np.zeros((rows.size, n_wl), dtype = np.float32)
+        for band_nr in range(n_wl):
+            band_im = self.radiance_spy_object[:, :, band_nr]
+            self.spectrum_list[:, band_nr] = band_im[self.mask_nodata]
+            print(band_nr)
+        
         
         
             

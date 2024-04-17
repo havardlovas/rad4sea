@@ -38,7 +38,7 @@ def run_wavelengths(wavelengths:np.array, s, n_threads:int = 8) -> np.array:
 # From ISTUTOR
 def srf(x, mu, sigma):
     """
-    Convoluting a gaussian waveband of central wavelength mu and width sigma"""
+    Convoluting a gaussian waveband of central wavelength mu and std sigma"""
     u = (x-mu)/abs(sigma)
     y = (1.0/(np.sqrt(2.0 * np.pi)*abs(sigma)))*np.exp(-u*u/2.0)
     return y/y.sum()

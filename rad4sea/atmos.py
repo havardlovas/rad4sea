@@ -1,6 +1,7 @@
 # A module for simple manipulation of radiometric data 
 
 class OceanRad():
+
     """
     A class representing ocean radiometry data.
 
@@ -18,7 +19,7 @@ class OceanRad():
         self.data_source = data_source
         self.parameters = parameters
     @classmethod
-    def from_fish(cls, fish_parameters):
+    def from_radiance(cls, fish_parameters):
         """
         Creates an OceanRad object from fish parameters.
 
@@ -32,7 +33,7 @@ class OceanRad():
         return cls(data_source="fish", parameters=fish_parameters)
 
     @classmethod
-    def from_bird(cls, bird_parameters):
+    def from_reflectance(cls, bird_parameters):
         """
         Creates an OceanRad object from bird parameters.
 
@@ -44,3 +45,4 @@ class OceanRad():
         """
 
         return cls(data_source="bird", parameters=bird_parameters)
+

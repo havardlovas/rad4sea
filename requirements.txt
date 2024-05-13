@@ -1,0 +1,4 @@
+py6s
+spectral
+tqdm
+numpy

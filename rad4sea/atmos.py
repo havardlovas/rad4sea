@@ -7,7 +7,7 @@ from datetime import datetime
 import time
 
 
-## From openhsi/atmos.py
+## Based on openhsi/atmos.py
 
 import copy
 from tqdm import tqdm

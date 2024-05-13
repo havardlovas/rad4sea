@@ -203,8 +203,10 @@ class OceanRad():
             self.E_d_W_m2 = self.get_downwelling_irr()
             self.L_u_W_m2_sr_nm = self.radiance_spy_object[self.mask_nodata, :]*self.radiance_multiplier
             self.Rrs = (self.L_u_W_m2_sr_nm / self.E_d_W_m2).astype(np.float32)
+
     
     def extract_cube_to_spectrum_list(self, rows, cols):
+        """Puts the radiance data (or similar) into a list based on mask_nodata"""
         w_im, h_im, n_wl = self.radiance_spy_object.shape
         item_bytes = 4
         size_datacube = w_im*h_im*n_wl*item_bytes / (1024**3)
@@ -214,9 +216,37 @@ class OceanRad():
         print(f'The datacube has {size_spectra} GB of actual data')
         
         self.spectrum_list = np.zeros((rows.size, n_wl), dtype = np.float32)
+        # Iterate through bandwize and put data in chunks.
+        # Potentially, you can do band batches, e.g. 10 bands at a time to lower the speed loss from 
         for band_nr in range(n_wl):
             band_im = self.radiance_spy_object[:, :, band_nr]
             self.spectrum_list[:, band_nr] = band_im[self.mask_nodata]
+            print(band_nr)
+    
+    def write_reflectance(self):
+        """Puts the radiance data (or similar) into a list based on mask_nodata"""
+        w_im, h_im, n_wl = self.radiance_spy_object.shape
+        item_bytes = 4
+        size_datacube = w_im*h_im*n_wl*item_bytes / (1024**3)
+        size_spectra = self.mask_nodata.size*n_wl*item_bytes / (1024**3)
+        print(f'The datacube has {w_im*h_im} cells')
+        print(f'The datacube is {size_datacube} GB')
+        print(f'The datacube has {size_spectra} GB of actual data')
+
+        if not os.path.exists(copy_cube_path):
+            SyntaxError()
+            print('The reflectance map ought to be written to a separate ENVI file to avoid overwriting')
+        
+        self.spectrum_list = np.zeros((self.mask_nodata.size, n_wl), dtype = np.float32)
+        # Iterate through bandwize and put data in chunks.
+        # Potentially, you can do band batches, e.g. 10 bands at a time to lower the speed loss from 
+        for band_nr in range(n_wl):
+            # Iterate through and put data into memory map (preferably a new one to make a file <file_name_cube>_reflectance.bsq)
+            # Solution: Use Shutil to copy file and header (if not done already) and adjust that file's header and data to become reflectance.
+            band_im_refl = self.radiance_spy_object[:, :, band_nr] / self.E_d_W_m2
+
+            # ....make writable ....
+            self.spectrum_list[:, band_nr] = band_im_refl[self.mask_nodata]
             print(band_nr)
         
         

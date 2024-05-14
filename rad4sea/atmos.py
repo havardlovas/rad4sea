@@ -62,6 +62,7 @@ class OceanRad():
         self.data_source = data_source
         self.parameters = parameters
         
+        # To support different class instantiations (currenly only radiance)
         if data_source == "radiance":
             self.radiance_multiplier = parameters["radiance_multiplier"]
             self.radiance_spy_object = parameters["radiance_spy_object"]
@@ -76,6 +77,8 @@ class OceanRad():
         # Read out wavelengths as these be needed for atmos correction
         self.wl = np.array(self.radiance_spy_object.metadata["wavelengths"]).astype(np.float64)
         self.fwhm = np.array(self.radiance_spy_object.metadata["fwhm"]).astype(np.float64)
+        
+        self.E_d_W_m2 = self.get_downwelling_irr()
         
         
     @classmethod
@@ -153,7 +156,7 @@ class OceanRad():
         s.aero_profile = AeroProfile.PredefinedType(AEROPROFILE)
         
         
-        wl_sim_step = 10 # Step nanometers
+        wl_sim_step = 1 # Step nanometers
         wl_sim_start = 390 # Hardcoded lower limit nanometers
         # Simulate and ensure to simulate for higher wavelengths than sensor
         wl_sim_stop  = 1e2 * np.round(self.wl.max()/1e2) + 100
@@ -173,14 +176,14 @@ class OceanRad():
         cleaned_radiance = radiances_simulated[~np.isnan(radiances_simulated)]
 
         for wavelength_nm, width_nm in zip(self.wl, self.fwhm):
-            sigma_nm = width_nm/2.3548
+            sigma_nm = width_nm/2.3548 # Relationship between standard deviation and FWHM
             
             # Calculating convolution with bands 
             radiance_resampled = np.sum(srf(cleaned_wl_sim_arr_um*1e3, wavelength_nm, sigma_nm) * cleaned_radiance)
             radiances_resampled.append(radiance_resampled)
         
         
-        self.wl_sim = cleaned_wl_sim_arr_um*1e3
+        self.wl_sim = cleaned_wl_sim_arr_um*1e3 # Map to nanometers
         self.rad_sim = cleaned_radiance*radiance_multip_py6s
         
         self.rad_sim_resamp = np.array(radiances_resampled)*radiance_multip_py6s
@@ -221,7 +224,7 @@ class OceanRad():
         for band_nr in range(n_wl):
             band_im = self.radiance_spy_object[:, :, band_nr]
             self.spectrum_list[:, band_nr] = band_im[self.mask_nodata]
-            print(band_nr)
+            
     
     def write_reflectance(self):
         """Puts the radiance data (or similar) into a list based on mask_nodata"""
@@ -233,21 +236,22 @@ class OceanRad():
         print(f'The datacube is {size_datacube} GB')
         print(f'The datacube has {size_spectra} GB of actual data')
 
-        if not os.path.exists(copy_cube_path):
-            SyntaxError()
-            print('The reflectance map ought to be written to a separate ENVI file to avoid overwriting')
         
         self.spectrum_list = np.zeros((self.mask_nodata.size, n_wl), dtype = np.float32)
+        
+        mm = self.radiance_spy_object.open_memmap(writable = True)
         # Iterate through bandwize and put data in chunks.
         # Potentially, you can do band batches, e.g. 10 bands at a time to lower the speed loss from 
         for band_nr in range(n_wl):
-            # Iterate through and put data into memory map (preferably a new one to make a file <file_name_cube>_reflectance.bsq)
-            # Solution: Use Shutil to copy file and header (if not done already) and adjust that file's header and data to become reflectance.
-            band_im_refl = self.radiance_spy_object[:, :, band_nr] / self.E_d_W_m2
-
-            # ....make writable ....
-            self.spectrum_list[:, band_nr] = band_im_refl[self.mask_nodata]
-            print(band_nr)
+            # Iterate bands and modify one band image at a time
+            band_im_refl = self.radiance_spy_object[:, :, band_nr] / self.E_d_W_m2[band_nr]
+            
+            band_im_refl *= self.radiance_multiplier # Scale to get Rrs in [1/sr]
+            
+            mm[:,:,band_nr] = band_im_refl.squeeze()
+        
+        del mm
+            
         
         
         

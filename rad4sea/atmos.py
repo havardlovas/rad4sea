@@ -134,7 +134,7 @@ class OceanRad():
         alt = self.altitude_msl / 10**3 # km
         
         date_str = z_time_str.split()[0]
-        print(date_str)
+        #print(date_str)
         s.atmos_profile = AtmosProfile.FromLatitudeAndDate(lat, date_str)
 
         #Viewing and sun geometry
@@ -232,9 +232,9 @@ class OceanRad():
         item_bytes = 4
         size_datacube = w_im*h_im*n_wl*item_bytes / (1024**3)
         size_spectra = self.mask_nodata.size*n_wl*item_bytes / (1024**3)
-        print(f'The datacube has {w_im*h_im} cells')
-        print(f'The datacube is {size_datacube} GB')
-        print(f'The datacube has {size_spectra} GB of actual data')
+        #print(f'The datacube has {w_im*h_im} cells')
+        #print(f'The datacube is {size_datacube} GB')
+        #print(f'The datacube has {size_spectra} GB of actual data')
 
         
         self.spectrum_list = np.zeros((self.mask_nodata.size, n_wl), dtype = np.float32)

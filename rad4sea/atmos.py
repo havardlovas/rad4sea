@@ -227,7 +227,7 @@ class OceanRad():
             
     
     def write_reflectance(self):
-        """Puts the radiance data (or similar) into a list based on mask_nodata"""
+        """If object instantiated with radiance, the memory map is here overwritten with reflectance data. Therefore, make sure to use a copy of radiance data when doing development to avoid overwriting."""
         w_im, h_im, n_wl = self.radiance_spy_object.shape
         item_bytes = 4
         size_datacube = w_im*h_im*n_wl*item_bytes / (1024**3)

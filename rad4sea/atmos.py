@@ -156,7 +156,7 @@ class OceanRad():
         s.aero_profile = AeroProfile.PredefinedType(AEROPROFILE)
         
         
-        wl_sim_step = 1 # Step nanometers
+        wl_sim_step = 0.5 # Step nanometers
         wl_sim_start = 390 # Hardcoded lower limit nanometers
         # Simulate and ensure to simulate for higher wavelengths than sensor
         wl_sim_stop  = 1e2 * np.round(self.wl.max()/1e2) + 100
@@ -227,7 +227,7 @@ class OceanRad():
             
     
     def write_reflectance(self):
-        """If object instantiated with radiance, the memory map is here overwritten with reflectance data. Therefore, make sure to use a copy of radiance data when doing development to avoid overwriting."""
+        """Puts the radiance data (or similar) into a list based on mask_nodata"""
         w_im, h_im, n_wl = self.radiance_spy_object.shape
         item_bytes = 4
         size_datacube = w_im*h_im*n_wl*item_bytes / (1024**3)
@@ -248,7 +248,7 @@ class OceanRad():
             
             band_im_refl *= self.radiance_multiplier # Scale to get Rrs in [1/sr]
             
-            mm[:,:,band_nr] = band_im_refl.squeeze()
+            mm[self.mask_nodata.squeeze(), band_nr] = band_im_refl[self.mask_nodata]
         
         del mm
             

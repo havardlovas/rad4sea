@@ -22,15 +22,22 @@ def _sixs_run_one_wavelength(s, wv:float) -> float:
     a.run()
     return SixSHelpers.Wavelengths.recursive_getattr(a.outputs, "pixel_radiance")
 
+# From openhsi/atmos
 def run_wavelengths(wavelengths:np.array, s, n_threads:int = 8) -> np.array:
     """Modified version of SixSHelpers.Wavelengths.run_wavelengths that has a progress bar.
     This implementation uses threading (through Python's multiprocessing API)."""
     
-    
-    with Pool(n_threads) as p, tqdm(total=len(wavelengths)) as pbar:
-        res = [p.apply_async( _sixs_run_one_wavelength, args=(s, wavelengths[i],), 
-                callback=lambda _: pbar.update(1)) for i in range(len(wavelengths))]
-        results = [r.get() for r in res]
+    try:
+        with Pool(n_threads) as p, tqdm(total=len(wavelengths)) as pbar:
+            res = [p.apply_async( _sixs_run_one_wavelength, args=(s, wavelengths[i],), 
+                    callback=lambda _: pbar.update(1)) for i in range(len(wavelengths))]
+            results = [r.get() for r in res]
+    except IndexError:
+        print('Multiprocessing failed for Py6S, running single processing with helper func from py6s')
+        
+        wv, results = SixSHelpers.Wavelengths.run_wavelengths(s, wavelengths, output_name='pixel_radiance')
+
+                
     
     return np.array(results)
 
@@ -126,7 +133,7 @@ class OceanRad():
         
         # Position, direction of sensor
         lat = self.lat # latitude in degrees
-        lon = self.lat # longitude in degrees
+        lon = self.lon # longitude in degrees
         
         # Stand at zero now
         zen = 0
@@ -143,6 +150,10 @@ class OceanRad():
         s.geometry.month = z_time.month
         dt_str = f"{z_time.year}-{z_time.month:02d}-{z_time.day:02d} {z_time.hour:02d}:{z_time.minute:02d}:{z_time.second:02d}"
         s.geometry.from_time_and_location(lat, lon, dt_str, zen, azi)
+        
+        print(dt_str)
+        print(date_str)
+        print(f"{lon}, {lat}, {alt}")
 
 
         #Altitude

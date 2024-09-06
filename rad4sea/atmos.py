@@ -82,7 +82,7 @@ class OceanRad():
         
         
         # Read out wavelengths as these be needed for atmos correction
-        self.wl = np.array(self.radiance_spy_object.metadata["wavelengths"]).astype(np.float64)
+        self.wl = np.array(self.radiance_spy_object.metadata["wavelength"]).astype(np.float64)
         self.fwhm = np.array(self.radiance_spy_object.metadata["fwhm"]).astype(np.float64)
         
         self.E_d_W_m2 = self.get_downwelling_irr()

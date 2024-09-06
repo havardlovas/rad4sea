@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name='rad4sea',
-    version='0.0.0',    
+    version='0.0.4',    
     description='A Python package for for radiometric transforms for hyperspectral seafloor/water column mapping',
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type = "text/markdown",

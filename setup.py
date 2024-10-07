@@ -1,8 +1,7 @@
 import pathlib
 import setuptools
 
-with open('C:/Users/haavasl/VsCodeProjects/rad4sea/requirements.txt') as f:
-    required = f.read().splitlines()
+
 
 setuptools.setup(
     name='rad4sea',

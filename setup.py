@@ -1,12 +1,12 @@
 import pathlib
 import setuptools
 
-with open('requirements.txt') as f:
+with open('C:/Users/haavasl/VsCodeProjects/rad4sea/requirements.txt') as f:
     required = f.read().splitlines()
 
 setuptools.setup(
     name='rad4sea',
-    version='0.0.0',    
+    version='0.0.5',    
     description='A Python package for for radiometric transforms for hyperspectral seafloor/water column mapping',
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type = "text/markdown",
@@ -14,7 +14,12 @@ setuptools.setup(
     author='Haavard Snefjellaa Loevaas',
     author_email='havard.s.lovas@ntnu.no',
     license='EUPL-1.2',
-    install_requires=required,
+    install_requires=[
+        "py6s",
+        "spectral",
+        "tqdm",
+        "numpy",
+    ],
 
     classifiers=[
         'Development Status :: 3 - Alpha',

@@ -5,11 +5,11 @@ import setuptools
 
 setuptools.setup(
     name='rad4sea',
-    version='0.0.5',    
+    version='0.0.6',    
     description='A Python package for for radiometric transforms for hyperspectral seafloor/water column mapping',
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type = "text/markdown",
-    url='https://github.com/havardlovas/gref4hsi',
+    url='https://github.com/havardlovas/rad4sea',
     author='Haavard Snefjellaa Loevaas',
     author_email='havard.s.lovas@ntnu.no',
     license='EUPL-1.2',
